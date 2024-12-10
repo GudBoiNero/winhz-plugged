@@ -1,15 +1,15 @@
 function Set-RefreshRate {
     param (
-        [int]$Rate
+        [int]$Rate = 60
     )
+
     # Check if NirCmd is present
     if (-Not (Test-Path "./nircmd.exe")) {
         Write-Host "NirCmd not found. Ensure it is in the script directory or in PATH."
         return
     }
-    
+
     # Set the refresh rate for the primary monitor using NirCmd
-    
     $resolution = Get-WmiObject -Class Win32_DesktopMonitor | Select-Object ScreenWidth, ScreenHeight
     $monitor = Get-WmiObject -Class Win32_DisplayControllerConfiguration
     $bits = $monitor.BitsPerPixel
@@ -30,18 +30,23 @@ function Get-PluggedIn {
     return $false
 }
 
+# Main script logic
 Write-Host "Listening for power state changes. Press Ctrl+C to exit."
 $last_pluggedIn = Get-PluggedIn
+
 while ($true) {
     $pluggedIn = Get-PluggedIn
-    if ($last_pluggedIn -ne $pluggedIn) {
-        if ($pluggedIn) {
-            Set-RefreshRate 165
-        }
-        else {
-            Set-RefreshRate 60
-        }
+    # Determine refresh rate based on power state
+    $refreshRate = if ($pluggedIn) { $HzOnPlug } else { $HzOnBattery }
+
+    if (-not $refreshRate) { 
+        Write-Host "Parameters -HzOnPlug and -HzOnBattery are required and must be non zero."
+        break 
     }
+
+    if ($last_pluggedIn -ne $pluggedIn) {
+        Set-RefreshRate -Rate $refreshRate
+    }
+
     $last_pluggedIn = $pluggedIn
 }
-    
