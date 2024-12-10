@@ -1,3 +1,8 @@
+param (
+    [int]$HzOnBattery,
+    [int]$HzOnPlug
+)
+
 function Set-RefreshRate {
     param (
         [int]$Rate = 60
