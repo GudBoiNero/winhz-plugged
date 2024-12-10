@@ -9,5 +9,3 @@ Useful for gaming laptops that don't automatically change framerates when on bat
 -   With the arguments field set as `-NoProfile -ExecutionPolicy Bypass -File "C:\Program Files (x86)\BatteryRefreshLaptopMonitorScript\BatteryRefreshLaptopMonitor.ps1" -HzOnBattery 60 -HzOnPlug 165`
 
 > You can change the location of the script `"C:\Program Files (x86)\BatteryRefreshLaptopMonitorScript\BatteryRefreshLaptopMonitor.ps1"` if you want. It doesn't matter, just make sure the `-File "FilePath"` argument is correct.
->
-> Also make sure you don't forget
