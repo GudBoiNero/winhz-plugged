@@ -7,13 +7,18 @@ function Set-RefreshRate {
         Write-Host "NirCmd not found. Ensure it is in the script directory or in PATH."
         return
     }
+    
     # Set the refresh rate for the primary monitor using NirCmd
-    Start-Process -FilePath "./nircmd.exe" -ArgumentList "setdisplay 1 refresh $Rate" -NoNewWindow -Wait
-    if ($?) {
+    
+    $resolution = Get-WmiObject -Class Win32_DesktopMonitor | Select-Object ScreenWidth, ScreenHeight
+    $monitor = Get-WmiObject -Class Win32_DisplayControllerConfiguration
+    $bits = $monitor.BitsPerPixel
+    $process = Start-Process -FilePath "./nircmd.exe" -ArgumentList "setdisplay $($resolution.ScreenWidth) $($resolution.ScreenHeight) $bits $Rate" -NoNewWindow -Wait
+    if ($process.ExitCode -eq 0) {
         Write-Host "Refresh rate set to $Rate Hz."
     }
     else {
-        Write-Host "Failed to set refresh rate to $Rate Hz."
+        Write-Host "Failed to set refresh rate to $Rate Hz. Error Code: $($process.ExitCode)"
     }
 }
 
@@ -28,8 +33,6 @@ function Get-PluggedIn {
 Write-Host "Listening for power state changes. Press Ctrl+C to exit."
 $last_pluggedIn = Get-PluggedIn
 while ($true) {
-    Start-Sleep -Seconds 0.5
-
     $pluggedIn = Get-PluggedIn
     if ($last_pluggedIn -ne $pluggedIn) {
         if ($pluggedIn) {
@@ -41,3 +44,4 @@ while ($true) {
     }
     $last_pluggedIn = $pluggedIn
 }
+    
